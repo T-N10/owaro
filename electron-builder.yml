@@ -1,0 +1,30 @@
+# 配布用 exe の設定（B-05・2026-09-13）。
+# appId は後から変えると「更新」でなく別アプリ扱い（二重インストール）になるので固定。
+# productName=Owaro（2026-09-23 本人「アプリ名を指す名前は全部統一」）。インストーラの表題・
+# インストール先フォルダ・アンインストール一覧が Owaro になる。userData は productName に引きずられて
+# %APPDATA%\Owaro に変わるので、main 側で従来の %APPDATA%\yakusoku-guard に固定している（記録を失わないため）。
+appId: jp.tn10.yakusoku-guard
+productName: Owaro
+directories:
+  output: dist
+files:
+  - out/**
+win:
+  # exe 名も Owaro。インストール先は %LOCALAPPDATA%\Programs\Owaro（productName 由来）。
+  # 記録の置き場所は main が固定するので %APPDATA%\yakusoku-guard のまま。
+  executableName: Owaro
+  # exe・インストーラ・アンインストーラのアイコン(2026-09-23)。作り方は scripts/make-icon.py。
+  icon: build/icon.ico
+  target:
+    - nsis
+    - dir
+nsis:
+  oneClick: true
+  perMachine: false
+  createDesktopShortcut: true
+  shortcutName: Owaro
+  artifactName: Owaro Setup ${version}.${ext}
+  # インストール完了後の自動起動はしない。自動起動された1回目はログイン時起動の登録先
+  # (レジストリ Run)が古い exe のまま書き換わらなかった(2026-09-13 実測)。
+  # インストール後はデスクトップのショートカットから起動する＝その1回で登録先が今の exe になる。
+  runAfterFinish: false

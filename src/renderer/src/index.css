@@ -1,0 +1,1179 @@
+/* 最小・クリーンなスタイル。凝った演出はしない。 */
+
+/* ---- 同梱フォント(2026-09-12 Figma 準拠で刷新。Zen Maru Gothic は廃止) ----
+   和文=IBM Plex Sans JP Medium(500) の1段だけ。欧数字=Lexend の 200/300/400
+   (大きな時刻=ExtraLight 200・ドラムの数字=Light 300・「Owaro」/OK=Regular 400)。
+   woff2 だけを読む(Chromium は woff2 を必ず選ぶので woff は死荷物)。
+   和文面には unicode-range を付けない=全文字が守備範囲。欧文面にだけ範囲を付け、
+   後勝ちの規則で英数字だけを欧文ファイルから取る(順序を入れ替えると和文が消える)。
+   範囲の出どころ=パッケージの unicode.json の latin。 */
+@font-face {
+  font-family: 'IBM Plex Sans JP';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('@fontsource/ibm-plex-sans-jp/files/ibm-plex-sans-jp-japanese-500-normal.woff2')
+    format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans JP';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('@fontsource/ibm-plex-sans-jp/files/ibm-plex-sans-jp-latin-500-normal.woff2')
+    format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* 約物(カッコ・句読点)の余白を詰める YakuHanJP(v4.1.1・OFL-1.1・Noto Sans JP 由来。2026-09-23 本人依頼)。
+   和文と同じ Medium(500) の1段だけ。unicode-range はパッケージの CSS と同じ約物だけ＝他の文字は触らない。
+   --font-ui の先頭に置くことで、約物だけこのフォント、残りは IBM Plex Sans JP が受け持つ。 */
+@font-face {
+  font-family: 'YakuHanJP';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('yakuhanjp/dist/fonts/YakuHanJP/YakuHanJP-Medium.woff2') format('woff2');
+  unicode-range: U+3001, U+3002, U+3008-300F, U+3010, U+3011, U+3014, U+3015, U+30FB, U+FF01,
+    U+FF08, U+FF09, U+FF1A, U+FF1B, U+FF1F, U+FF3B, U+FF3D, U+FF5B, U+FF5D;
+}
+@font-face {
+  font-family: 'Lexend';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url('@fontsource/lexend/files/lexend-latin-200-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lexend';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('@fontsource/lexend/files/lexend-latin-300-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lexend';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@fontsource/lexend/files/lexend-latin-400-normal.woff2') format('woff2');
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ---- ブランド紫＝唯一の出どころ。ここを変えれば全テーマ＋オーバーレイに波及 ----
+   白地は濃いめ／黒地（ダーク・黒オーバーレイ）は明るめ、の明暗2段。
+   ＝Notionで本人が決めた「赤寄り紫・明暗2段・CSS変数1個で差し替え」をそのまま実装。 */
+:root {
+  --purple-light:        #7e35de;  /* 白地で映える紫（ライトのCTA）＝Figma 2026-09-12 のアクセント */
+  --purple-light-hover:  #6d2bc4;  /* 一段濃く(派生値。Figma に無い) */
+  --purple-light-press:  #5e24aa;
+
+  --purple-dark:         #9333ea;  /* 黒地で映える明るい紫（ダーク＋オーバーレイ） */
+  --purple-dark-hover:   #a855f7;
+  --purple-dark-press:   #7e22ce;
+  --purple-dark-soft:    #c79bff;  /* 黒地の紫テキスト・細線 */
+
+  /* ---- オーバーレイ（常にほぼ黒・夜の合図）＝テーマに依らない独立スキン単位 ---- */
+  --ov-bg:           #0a090c;   /* ほぼ黒の地 */
+  --ov-text:         #ffffff;
+  --ov-muted:        #bdb6ad;   /* 説明・補助テキスト */
+  --ov-faint:        #6f6a62;   /* さらに弱いラベル */
+  --ov-line:         rgba(255,255,255,.16);  /* 細線・枠 */
+  --ov-line-strong:  rgba(255,255,255,.34);
+  --ov-accent:       var(--purple-dark);        /* OK・選択＝黒地の明るい紫 */
+  --ov-accent-hover: var(--purple-dark-hover);
+  --ov-accent-soft:  var(--purple-dark-soft);   /* リング・紫テキスト */
+  --ov-accent-ink:   #ffffff;
+  --ov-disabled-bg:  #2a2233;   /* ロック中OKの沈んだ面 */
+  --ov-disabled-ink: #cbb8e6;
+  --ov-card-line:    #d3d3d3;   /* 「あとちょっと」カードの枠・文字 */
+  --ov-row-bg:       rgba(245,245,245,.18);  /* 黒地ドラムの現在行 */
+
+  /* 顔文字(結合文字・音声拡張)は Plex JP に無いので、Windows の記号書体へ落とす。 */
+  --font-ui:  'YakuHanJP', 'IBM Plex Sans JP', 'Segoe UI', 'Segoe UI Symbol', system-ui, sans-serif;
+  --font-num: 'Lexend', var(--font-ui);  /* 大きな時刻・ドラムの数字・「Owaro」・OK */
+}
+
+/* ---- 配色（ライト＝温かいオフホワイト＝紙） ---- */
+:root,
+[data-theme="light"] {
+  color-scheme: light;   /* ライト固定。時刻入力は自作化済み（native部品なし）だが残しても害なし */
+  --bg:        #efe9dd;   /* 卓上＝温かいグレージュ（Cursor の地に寄せる） */
+  --surface:   #fbf8f2;   /* アプリ面＝温かい紙 */
+  --surface-2: #f4efe6;   /* 一段沈めた面 */
+  --surface-hi:#ffffff;   /* 一段持ち上げた面（「今」チップ＝紙より白く抜く） */
+  --text:      #241f18;   /* 温かい黒 */
+  --muted:     #7b7264;   /* 補助テキスト */
+  --faint:     #a89e8d;   /* さらに弱い */
+  --border:    #e7dfd0;   /* 罫・枠 */
+  --shadow:    24px 30px 60px -30px rgba(74, 58, 32, .28);
+  --shadow-sm: 0 2px 8px -2px rgba(74, 58, 32, .14);
+  --shadow-card:   0 6px 6px 0 rgba(36, 31, 24, .04);     /* 時刻カード(白) */
+  --shadow-drawer: 0 4px 4px 0 rgba(123, 114, 100, .16);  /* 引き出しメニュー */
+  --line-soft:     #d3d3d3;  /* メニュー行の下罫 */
+  --disabled-bg:   #edeae7;  /* 押せない主ボタンの面(文字は --text を 24%) */
+
+  /* CTA（はじめる）の浮き。消す先は none ではなく「同じ形・色だけ透明」で持つ
+     ＝none へ向けると影が縮みながら消えるため、滑らかに抜くには色だけを変える。 */
+  --shadow-cta:       0 4px 4px 0 rgba(153, 102, 158, .24);
+  --shadow-cta-hover: 0 4px 4px 0 rgba(153, 102, 158, 0);
+
+  /* アクセント＝少し赤寄りの紫。CTA は濃いめ、面は淡いティント。
+     色味の出どころは上の --purple-light 系（ここでは役割に割り当てるだけ）。 */
+  --accent:        var(--purple-light);       /* CTA 背景（白地で映える濃い紫・赤寄り） */
+  --accent-hover:  var(--purple-light-hover);
+  --accent-press:  var(--purple-light-press);
+  --accent-ink:    #ffffff;  /* CTA 文字（コントラスト AA） */
+  --accent-tint:   #f3eafb;  /* 紫の淡い面（白地専用の淡色） */
+  --accent-line:   #e3d2f4;  /* 紫の淡い枠（白地専用の淡色） */
+  --accent-text:   var(--purple-light-hover); /* 文字としての紫（リンク等） */
+  --danger:        #b3261e;  /* エラー文言（白地） */
+}
+
+/* ---- 配色（ダーク＝温かいチャコール／冷たいスレートにしない） ---- */
+[data-theme="dark"] {
+  color-scheme: dark;    /* ネイティブ部品（時刻入力）を暗に追従 */
+  --bg:        #14110d;
+  --surface:   #211d17;
+  --surface-2: #1a160f;
+  --surface-hi:#2b261e;   /* 黒地では「持ち上げ」＝白ではなく一段明るいチャコール */
+  --text:      #ece6da;
+  --muted:     #9a9184;
+  --faint:     #6f6759;
+  --border:    #322c22;
+  --shadow:    24px 30px 70px -34px rgba(0, 0, 0, .7);
+  --shadow-sm: 0 2px 10px -2px rgba(0, 0, 0, .5);
+
+  /* 黒地では白っぽい影が使えないので、紫そのものを薄めて落とす（形はライトと同一）。 */
+  --shadow-cta:       0 6px 12px 0 color-mix(in srgb, var(--purple-dark) 32%, transparent);
+  --shadow-cta-hover: 0 6px 12px 0 color-mix(in srgb, var(--purple-dark) 0%, transparent);
+
+  --accent:        var(--purple-dark);        /* 黒寄りの地で映える明るい紫 */
+  --accent-hover:  var(--purple-dark-hover);
+  --accent-press:  var(--purple-dark-press);
+  --accent-ink:    #ffffff;
+  --accent-tint:   color-mix(in srgb, var(--purple-dark-hover) 14%, transparent);
+  --accent-line:   color-mix(in srgb, var(--purple-dark-hover) 30%, transparent);
+  --accent-text:   var(--purple-dark-soft);
+  --danger:        #f2b8b5;  /* エラー文言（黒地） */
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  /* 窓は resizable:false の固定サイズ＝ページを縦スクロールさせる場面が無い。
+     開かないと、浮いている要素(時刻ドロップダウン)がはみ出した分だけ
+     「スクロールできる範囲」が伸びてスクロールバーが出現し、
+     その幅15px ぶん中身が横にズレる = ガタつく。出さない、が正。
+     内側でスクロールさせたい部分(ドロップダウン等)は個別に overflow を持たせる。 */
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-ui);
+  /* 同梱は Medium(500)/Bold(700) の2段。本文＝Medium を既定にする
+     (400 を積まないので既定の normal のままだと合成で字が濁る)。 */
+  font-weight: 500;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: .01em;
+}
+
+/* button/input 等のフォーム部品は font を親から継承しない(ブラウザ既定=OSのUI書体)。
+   明示しないと「はじめる」「今」「おわり」ボタンだけ Windows 標準書体で描かれる。 */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+}
+
+/* キーボード操作の輪郭。指定しないと Chromium 既定の outline:auto が描かれ、
+   その色は Windows のシステムアクセント色に追従する(＝環境によって橙にも青にもなる)。
+   起動直後の一度だけ出ていたのはこれ＝マウスで触った後は :focus-visible が付かないため。
+   姿は「押して開いたとき」の薄紫の輪(下の [aria-expanded] と同じ 4px・--accent-tint)に
+   揃える＝そもそも滅多に出ない合図なので、新しい見た目を増やさない。
+   box-shadow ではなく outline を使うのは、CTA が持つ影(--shadow-cta)を上書きしないため
+   (outline も border-radius に沿うので、輪の形は box-shadow 版と一致する)。 */
+:focus-visible {
+  outline: 4px solid var(--accent-tint);
+}
+
+/* 共通レイアウト: 中央寄せ */
+.screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* ---- 起動画面(約束入力)＝Figma 2:36 / 77:739 / 77:624 / 77:693 / 105:416 ---- */
+/* 窓いっぱいが1枚の紙。OS のタイトルバーは隠しているので、上端の帯(.app-header)から自前。
+   高さは shared/constants.ts の PROMISE_H_CLOSED / _OPEN と一致させる(ドラム開閉でだけ伸縮)。 */
+.screen.promise {
+  padding: 0;
+  align-items: stretch;
+}
+
+.promise .card {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 上端の帯(app_head)。ドラッグで窓を動かす領域。右端は自前の最小化/閉じる
+   (.app-header-controls)を置く＝帯の中で押せるのはそこだけで、ドラッグ領域から外す。 */
+.app-header {
+  height: 40px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-num);
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: .08px;
+  color: var(--muted);
+  user-select: none;
+  -webkit-app-region: drag;
+  position: relative;
+}
+
+/* 帯の右端の最小化/閉じる。当たり判定は Windows 標準と同じ 46×40 に揃える。
+   各ボタンの左辺に区切り線(--border)を常時引く＝Figma の指定(2026-09-12)。
+   hover は --muted で塗って記号を白にする(閉じるも赤くしない)。色は 120ms でなめらかに変える。 */
+.app-header-controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  display: flex;
+  -webkit-app-region: no-drag;
+}
+
+.app-header-btn {
+  width: 46px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-left: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: default;
+  transition: background-color 120ms ease-out, color 120ms ease-out;
+}
+
+.app-header-btn:hover {
+  background: var(--muted);
+  color: #fff;
+}
+
+/* 三本線の行(l-hamburger)。高さ35・左24・上20。 */
+.hamburger {
+  height: 35px;
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  padding: 24px 24px 0 24px; /* 2026-09-12 本人指示(旧 20px 20px 0 24px) */
+}
+
+/* 当たり判定は 40×40(2026-09-23 本人指示。線だけの 20×18 では押しにくい)。
+   線は箱の中央に置き、負の margin で線の見た目の位置(左24・上24)は据え置く。
+   箱の下端は .section(position: relative)の上余白にはみ出すので z-index で前に出す。 */
+.hamburger-btn {
+  position: relative;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  margin: -11px 0 0 -10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hamburger-btn span {
+  display: block;
+  width: 20px;
+  height: 2px; /* 2026-09-12 本人指示(旧 1px)。帯の最小化/閉じるの線幅 2 と揃える */
+  border-radius: 10px;
+  background: var(--muted);
+}
+
+/* 本文(Section)。左右32・上下40。 */
+.section {
+  position: relative;
+  flex: 1;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 画面の主役＝止め時(AppTitle)。既定値入りなので「未選択」状態は無い。 */
+.big-time {
+  margin: 0;
+  font-family: var(--font-num);
+  font-weight: 200;
+  font-size: 80px;
+  line-height: 1;
+  letter-spacing: .25px;
+  text-align: center;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.controls {
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 時刻カード(c-timepicker)。白い面・角丸8・内側12。 */
+/* 白い余白(12px)はカードでなく頭のボタンに持たせる＝余白の上を押しても開閉する(2026-09-12 本人指示)。
+   ドラム側の左右・下の余白は .tp-wheels が持つ。 */
+.tp-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: var(--shadow-card);
+}
+
+.tp-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 16px;
+  letter-spacing: .075px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tp-head:disabled {
+  cursor: default;
+}
+
+.tp-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tp-icon {
+  flex: none;
+  color: var(--text);
+}
+
+/* ラベルの字面を行箱の上下から刈り込み(Figma と同じ text-box-trim: cap/alphabetic)、
+   アイコン・矢印と目で見て高さの真ん中に揃える。行箱のままだと和文字が数px上に浮く。
+   起動画面(.tp-head)とおわり画面(.ov-card-head)の両方がこのクラスを使う(2026-09-12)。 */
+.tp-label {
+  line-height: 1;
+  text-box: trim-both cap alphabetic;
+}
+
+.tp-label .num {
+  font-family: var(--font-num);
+  font-weight: 400;
+  font-size: 15px;
+}
+
+.tp-chevron {
+  flex: none;
+  color: var(--muted);
+  transition: transform .2s ease;
+}
+
+.tp-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+/* 開閉の器。grid の行を 0fr↔1fr で動かすと中身の高さに関わらず「ぬるっと」伸びる。
+   時間は shared/constants.ts の PROMISE_RESIZE_MS(窓の伸縮)と手で揃える。 */
+:root {
+  --tp-open-ms: 180ms;
+}
+
+.tp-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--tp-open-ms) ease-out;
+  /* 中の数字(transform で動く行)が描画の合成のすき間で枠の外(帯の上)に一瞬出た(2026-09-12 本人報告)。
+     paint の封じ込めで、この箱の外には何も描かせない。 */
+  overflow: hidden;
+  contain: paint;
+}
+
+.tp-body.is-open {
+  grid-template-rows: 1fr;
+}
+
+/* 頭との隙間(合計18: 頭のボタンの下余白12＋ここ6)と下余白12は開いたときだけ。閉じた側に上下の
+   padding が残ると 0fr の行がその分床になり、閉じたカードが従来(40px)より高くなる。左右は常時12。 */
+.tp-wheels {
+  display: flex;
+  gap: 12px; /* 字が 24px になったぶん時と分の間も広げる(以前 8px) */
+  padding: 0 12px;
+  min-height: 0;
+  overflow: hidden;
+  transition: padding var(--tp-open-ms) ease-out;
+}
+
+.tp-body.is-open .tp-wheels {
+  padding: 6px 12px 12px;
+}
+
+/* ---- ドラム(Wheel.tsx)。行の高さは WHEEL_ROW_H が正。 ---- */
+.wheel {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  /* 行の transform(移動・scaleY)が合成レイヤーになり、切り替えの一瞬だけ窓の上端に数字が
+     漏れて見えた。paint を封じ込めて、レイヤーごとこの枠で切る。 */
+  contain: paint;
+  isolation: isolate;
+  outline: none;
+  border-radius: 4px;
+  touch-action: none;
+  user-select: none;
+  cursor: ns-resize;
+}
+
+.wheel:focus-visible {
+  box-shadow: 0 0 0 4px var(--accent-tint);
+}
+
+.wheel.is-disabled {
+  cursor: default;
+}
+
+.wheel-track {
+  transition: transform .12s ease-out;
+}
+
+.wheel-track.is-dragging {
+  transition: none;
+}
+
+/* 現在行は淡い面、上下は薄く・縦に潰して「ドラムの丸み」を出す(Figma の scaleY/opacity)。 */
+.wheel-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 16px;
+  border-radius: 6px;
+  font-family: var(--font-num);
+  font-weight: 300;
+  /* 24px(2026-09-12 本人指示)。行の高さ(WHEEL_ROW_H=30)と組で見る＝字だけ大きくすると詰まる。 */
+  font-size: 24px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  transition: opacity .12s ease-out, transform .12s ease-out;
+}
+
+.wheel-row.is-current {
+  background: #f5f5f5;
+}
+
+.wheel-row.is-near {
+  opacity: .24;
+  transform: scaleY(.83);
+}
+
+.wheel-row.is-far {
+  opacity: .12;
+  transform: scaleY(.59);
+}
+
+.wheel-row.is-hidden {
+  opacity: 0;
+}
+
+.wheel-unit {
+  font-family: var(--font-ui);
+  font-size: 16px; /* 数字 24px に対する添え字。以前は 16px に対して 12px */
+}
+
+/* 黒地(おわり画面)用。 */
+.wheel--dark .wheel-row {
+  color: var(--ov-card-line);
+}
+
+.wheel--dark .wheel-row.is-current {
+  background: var(--ov-row-bg);
+}
+
+.wheel--dark .wheel-row.is-near,
+.wheel--dark .wheel-row.is-far {
+  opacity: .4;
+}
+
+.wheel--dark .wheel-unit {
+  color: #fff;
+}
+
+/* 主ボタン(c-button)。高さ40・角丸8・紫の面。 */
+.primary {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: .08px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: var(--shadow-cta);
+  /* 対象を絞る（全プロパティ指定だと disabled 化の opacity まで遅れて追従する）。 */
+  transition: background-color .4s ease, box-shadow .4s ease, color .4s ease;
+  cursor: pointer;
+}
+
+/* ホバーは「近づいたら浮きを下ろす」＝影を滑らかに抜く。 */
+.primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  box-shadow: var(--shadow-cta-hover);
+}
+
+.primary:active:not(:disabled) {
+  background: var(--accent-press);
+}
+
+/* 押せない(予約から5分過ぎ・入口ブロック・送信中)＝沈んだ面に薄い文字(Figma 94:366)。 */
+.primary:disabled {
+  background: var(--disabled-bg);
+  color: color-mix(in srgb, var(--text) 24%, transparent);
+  box-shadow: none;
+  cursor: default;
+}
+
+/* 下の一行(inner-label)。リンク(とりけす／いますぐ おわる)か、入口ブロックの警告か、送信エラー。
+   本文の下余白(40px)へ浮かせる＝出ても消えても窓の高さが変わらない。 */
+/* ボタンの下の一行(Figma inner-label / c-label)。流れの中に置き、ボタンの下 24px・
+   14px Medium・上下を cap で刈る(箱は 10px)。その下は .section の下余白 40 で窓の底まで届く
+   (窓 386 = 40+35+40+80+24+40+12+40+24+10+40)。以前は窓の底から 8px に浮かせていた。 */
+.status {
+  padding-top: 24px;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: .075px;
+}
+
+/* text-box は文字を直接持つ箱に効く(flex の器には効かない)。 */
+.status-link > *,
+.status-error {
+  text-box: trim-both cap alphabetic;
+}
+
+.status-link {
+  display: inline-flex;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.status-link u {
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+.status-link:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+/* エラー文も一行(とりけす等)と同じ 14px・同じ位置・同じ灰色(2026-09-12 本人指示。赤はやめた)。
+   流れの中にあるので 2 行に折り返しても主ボタンには掛からない(窓の底に 40px の余白を食うだけ)。 */
+.status-error {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* ---- 引き出しメニュー(l-hamburger-menu)。帯の下から出る。 ----
+   出入りはディゾルブ(暗幕とパネルを同時にフェード)。閉じる側は .is-closing で逆再生し、
+   HamburgerDrawer が animationend を待って DOM から外す。 */
+:root {
+  --drawer-fade: 160ms;
+}
+
+@keyframes drawer-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes drawer-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* z-index は前に出した .hamburger-btn(1)より上に置くため */
+.drawer-dim {
+  position: absolute;
+  z-index: 2;
+  top: 41px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0;
+  border: none;
+  background: rgba(123, 114, 100, .64);
+  mix-blend-mode: multiply;
+  cursor: default;
+  animation: drawer-fade-in var(--drawer-fade) ease-out both;
+}
+
+.drawer {
+  position: absolute;
+  z-index: 2;
+  top: 41px;
+  left: 0;
+  bottom: 0;
+  width: 210px;
+  padding: 24px;
+  background: #fff;
+  border-radius: 0 4px 4px 0;
+  box-shadow: var(--shadow-drawer);
+  display: flex;
+  flex-direction: column;
+  animation: drawer-fade-in var(--drawer-fade) ease-out both;
+}
+
+.drawer-dim.is-closing,
+.drawer.is-closing {
+  animation: drawer-fade-out var(--drawer-fade) ease-in both;
+  pointer-events: none;
+}
+
+/* 当たり判定は 40×40(2026-09-23 本人指示。旧 16×16 では押しにくい)。
+   負の margin で ×印の見た目の位置と、下のメニューの位置は据え置く。 */
+.drawer-close {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  margin: -12px 0 -12px -12px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.drawer-close::before,
+.drawer-close::after {
+  content: '';
+  position: absolute;
+  left: 10px; /* 旧 16×16 の箱での -2px/7px に、広げたぶんの 12px を足した値 */
+  top: 19px;
+  width: 20px;
+  height: 1.5px;
+  border-radius: 10px;
+  background: var(--muted);
+  transform: rotate(45deg);
+}
+
+.drawer-close::after {
+  transform: rotate(-45deg);
+}
+
+.drawer-menu {
+  padding-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.drawer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 0 0 14px;
+  border: none;
+  border-bottom: 1px solid var(--line-soft);
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: .075px;
+  text-align: left;
+  cursor: pointer;
+  transition: opacity 120ms ease-out;
+}
+
+/* hover は行全体(下の余白と横幅いっぱい)を薄くする(2026-09-23 本人指示) */
+.drawer-item:not(:disabled):hover {
+  opacity: .6;
+}
+
+.drawer-item:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+/* オン/オフのスイッチ(起動設定)。Figma 未描画のため実装側の提案。 */
+.switch {
+  position: relative;
+  flex: none;
+  width: 32px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--border);
+  transition: background-color .2s ease;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+  transition: transform .2s ease;
+}
+
+.switch.is-on {
+  background: var(--accent);
+}
+
+.switch.is-on::after {
+  transform: translateX(14px);
+}
+
+/* ---- 「このアプリについて」(AboutPanel)。引き出しメニューから開く、中央の白いパネル。
+   BGM のクレジット(CC BY 4.0)の常設場所。アニメーションは付けない。 ---- */
+/* z-index は前に出した .hamburger-btn(1)より上に置くため */
+.about-dim {
+  position: fixed;
+  z-index: 2;
+  inset: 0;
+  padding: 0;
+  border: none;
+  background: rgba(123, 114, 100, .64);
+  mix-blend-mode: multiply;
+  cursor: default;
+  animation: drawer-fade-in var(--drawer-fade) ease-out both;
+}
+
+.about-dim.is-closing,
+.about.is-closing {
+  animation: drawer-fade-out var(--drawer-fade) ease-in both;
+  pointer-events: none;
+}
+
+/* 上寄せ固定。窓を刻んで伸ばす最中に中央寄せだと中身が動き、Windows が残像を貼り残す(2026-09-12 の症状)。 */
+.about {
+  position: fixed;
+  z-index: 2;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 48px);
+  max-width: 300px;
+  max-height: calc(100% - 80px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: var(--shadow-drawer);
+  color: var(--text);
+  animation: drawer-fade-in var(--drawer-fade) ease-out both;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* セレクタはクラス名単体で書く(「クラス+タグ」は書かない。2026-09-23 本人)。
+   見出し(.about-heading)は本文色、左に 6px のアクセント色の丸を疑似要素で置き、丸と文字の間は 6px。
+   本文(.about-text)は補助テキスト色(--muted＝送信エラー文と同じ薄い茶)。 */
+.about-yomi {
+  font-size: 13px;
+}
+
+.about-sections {
+  display: grid;
+  gap: 24px;
+}
+
+.about-heading {
+  position: relative;
+  margin: 0;
+  padding-left: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--text);
+}
+
+.about-heading::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.about-text {
+  margin: 6px 0 0;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.about-url {
+  display: block;
+  margin: 6px 0 0;
+  line-height: 1.4;
+  color: var(--muted);
+  word-break: break-all;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: opacity .15s ease;
+}
+
+.about-url:hover {
+  opacity: .6;
+}
+
+/* 閉じる＝主ボタン(.primary)と同じ面・高さ・角丸。 */
+.about-close {
+  display: block;
+  width: 100%;
+  height: 40px;
+  margin-top: 16px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: .08px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: var(--shadow-cta);
+  transition: background-color .4s ease, box-shadow .4s ease;
+  cursor: pointer;
+}
+
+.about-close:hover {
+  background: var(--accent-hover);
+  box-shadow: var(--shadow-cta-hover);
+}
+
+.about-close:active {
+  background: var(--accent-press);
+}
+
+/* ---- オーバーレイ（全画面）＝Figma 5:81 / 105:362 / 99:329 ---- */
+/* 色は確定トーンの --ov-* だけを使う(生の16進数を足さない)。 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  padding: 32px;
+  background: var(--ov-bg);
+  color: var(--ov-text);
+}
+
+/* オーバーレイはテーマに依らずほぼ黒。白地用の淡色(--accent-tint)は地に沈んで消えるので、
+   黒地用の紫(--ov-accent-soft)を薄めて同じ「淡い輪」を作る。 */
+.overlay :focus-visible {
+  outline-color: color-mix(in srgb, var(--ov-accent-soft) 30%, transparent);
+}
+
+.overlay-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 560px;
+}
+
+.overlay-title {
+  margin: 0;
+  font-size: 104px;
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: 3.12px;
+  color: var(--ov-text);
+}
+
+.overlay-sub {
+  margin: 0;
+  padding: 20px 0 44px;
+  font-size: 18px;
+  letter-spacing: .16px;
+  color: var(--ov-text);
+}
+
+/* カード・OK・下の一行を縦に積む(幅318で揃える)。 */
+.overlay-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 「あとちょっと」カード(c-timepicker の黒地版)。枠線だけの面。 */
+.ov-card {
+  width: 318px;
+  padding: 12px;
+  border: 1px solid var(--ov-card-line);
+  border-radius: 8px;
+  box-shadow: 0 6px 12px 0 rgba(36, 31, 24, .04);
+  transition: opacity .3s ease;
+}
+
+.ov-card.is-locked {
+  opacity: .56;
+}
+
+.ov-card-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ov-card-line);
+  font-size: 14px;
+  line-height: 16px;
+  letter-spacing: .075px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ov-card-head:disabled {
+  cursor: default;
+}
+
+.ov-card-head .tp-icon,
+.ov-card-head .tp-chevron {
+  color: var(--ov-card-line);
+}
+
+.ov-card-body {
+  padding-top: 18px;
+}
+
+/* OK(c-button)。318×40、紫の面、Lexend。 */
+.overlay-ok {
+  width: 318px;
+  height: 40px;
+  margin-top: 16px;
+  padding: 0 16px;
+  font-family: var(--font-num);
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: .08px;
+  border: none;
+  border-radius: 8px;
+  background: var(--ov-accent);
+  color: var(--ov-accent-ink);
+  cursor: pointer;
+  transition: opacity .3s ease, background-color .3s ease;
+}
+
+.overlay-ok:hover:not(:disabled) {
+  background: var(--ov-accent-hover);
+}
+
+/* ロック中(押せない30秒)は薄く沈める。赤にはしない＝責めない・急かさないため。 */
+.overlay-ok:disabled {
+  opacity: .56;
+  cursor: default;
+}
+
+/* 下の一行(inner-label)。残り秒 / 1回だけの説明。 */
+.ov-label {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+  margin: 0;
+  padding-top: 32px;
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: .075px;
+  color: var(--ov-card-line);
+  opacity: .88;
+}
+
+.ov-label .num {
+  font-family: var(--font-num);
+  font-weight: 400;
+  font-size: 15px;
+}
+
+/* 確認用オーバーレイの脱出口(カタログから開いたときだけ出る)。
+   preview は残り秒を固定する＝OK が押せないままなので、隅に必ず出口を置く。
+   儀式の見た目を壊さないよう、地に沈む濃度に留める。 */
+.overlay-preview-close {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  padding: 8px 14px;
+  border: 1px solid var(--ov-muted);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ov-muted);
+  font-size: 12px;
+  opacity: .55;
+  cursor: pointer;
+  transition: opacity .2s ease;
+}
+
+.overlay-preview-close:hover {
+  opacity: 1;
+  color: var(--ov-text);
+  border-color: var(--ov-text);
+}
+
+/* ---- 画面カタログ('#/gallery'・開発ビルド限定) ---- */
+/* この窓だけは resizable な普通のページ＝中身が窓より縦に長い。
+   上の html/body/#root の overflow:hidden(固定サイズ窓のガタつき防止)は
+   ここでは「下が見切れて動かせない」害にしかならないので、この窓に限って戻す。 */
+html:has(.gallery),
+html:has(.gallery) body,
+html:has(.gallery) #root {
+  height: auto;
+  min-height: 100%;
+  overflow: visible;
+}
+
+/* 実装そのものを実寸の枠に流し込む。.screen と .card の min-height は 100vh
+   ＝そのままだとカタログ窓の高さに伸びるので、枠の中でだけ「枠いっぱい」に読み替える。 */
+.gallery {
+  min-height: 100vh;
+  padding: 32px 40px 64px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.gallery-head {
+  margin: 32px 0 16px;
+}
+
+.gallery-head h1,
+.gallery-head h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.gallery-head p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.gallery-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.gallery-item {
+  margin: 0;
+}
+
+.gallery-frame {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.gallery-frame .screen,
+.gallery-frame .promise .card {
+  min-height: 100%;
+}
+
+.gallery-item figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.gallery-item figcaption b {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.gallery-launch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* カタログ内の起動ボタン。従の見た目(枠だけ)。 */
+.gallery-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.gallery-btn:hover {
+  color: var(--text);
+  border-color: var(--faint);
+}
+
+.gallery-btn span {
+  font-size: 12px;
+  color: var(--faint);
+}
