@@ -8,6 +8,8 @@
 
 Windows 用。
 
+**[ダウンロード（最新版）](https://github.com/T-N10/owaro/releases/latest)** — ページ下の「Assets」から `Owaro-Setup-<版>.exe` を落とす。入れ方は下の「[インストール](#インストール)」。
+
 <p>
   <img src="docs/images/screen-start.png" width="300" alt="起動画面。大きな時刻が止め時で、その下に「時間をきめる」と「はじめる」">
   <img src="docs/images/screen-pending.png" width="300" alt="予約中の画面。「23:00 に予約中」と「時間をかえる」「とりけす」">
@@ -76,7 +78,7 @@ OK は最初の30秒は押せないので、押せるようになってから12�
 
 ### インストール
 
-1. 配布ページ（このリポジトリの Releases）から `Owaro Setup <版>.exe` をダウンロードして実行する
+1. [配布ページ（Releases の最新版）](https://github.com/T-N10/owaro/releases/latest)の「Assets」から `Owaro-Setup-<版>.exe` をダウンロードして実行する
 2. 青い画面「Windows によって PC が保護されました」が出たら、「詳細情報」を押し、出てきた「実行」を押す。
    電子署名（有料）を付けていないために出る警告で、Owaro に問題があるという意味ではない
 3. 確認なしで `%LOCALAPPDATA%\Programs\Owaro` に入り、デスクトップに「Owaro」ができる
